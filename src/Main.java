@@ -14,23 +14,25 @@ public class Main {
         List<Car> cars = importService.getCars();
         List<Trip> trips = importService.getTrips();
 
-        System.out.println("\nFahrer:");
-        drivers.stream().limit(10).forEach(System.out::println);
-
-        System.out.println("\nFahrzeuge:");
-        cars.stream().limit(10).forEach(System.out::println);
-
-        System.out.println("\nFahrten:");
-        trips.stream().limit(10).forEach(System.out::println);
+//        System.out.println("\nFahrer:");
+//        drivers.stream().limit(10).forEach(System.out::println);
+//
+//        System.out.println("\nFahrzeuge:");
+//        cars.stream().limit(10).forEach(System.out::println);
+//
+//        System.out.println("\nFahrten:");
+//        trips.stream().limit(10).forEach(System.out::println);
 
         for (String arg : args) {
             if (arg.startsWith("--fahrersuche=")) {
                 String keyword = arg.split("=", 2)[1].trim().toLowerCase();
+                System.out.println("\nSuchergebnisse für Fahrer mit Schlüsselwort '" + keyword + "':");
                 drivers.stream()
                         .filter(driver -> (driver.getFirstName() + " " + driver.getLastName()).toLowerCase().contains(keyword))
                         .forEach(System.out::println);
             } else if (arg.startsWith("--fahrzeugsuche=")) {
                 String keyword = arg.split("=", 2)[1].trim().toLowerCase();
+                System.out.println("\nSuchergebnisse für Fahrzeuge mit Schlüsselwort '" + keyword + "':");
                 cars.stream()
                         .filter(car -> (car.getManufacturer() + car.getModel() + car.getLicensePlate()).toLowerCase().contains(keyword))
                         .forEach(System.out::println);
