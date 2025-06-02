@@ -5,6 +5,10 @@ Java-Anwendung zur Verwaltung von Dienstwagen, Fahrern und Fahrten – inklusive
 
 ```mermaid
 classDiagram
+    %% =======================
+    %% == Datenmodell-Teil ==
+    %% =======================
+
     class Driver {
         - String id
         - String firstName
@@ -30,37 +34,62 @@ classDiagram
         - Car car
         + long getDistance()
         + Duration getDuration()
-        + boolean isOnDate(LocalDate date)
         + boolean includesTime(LocalDateTime timestamp)
+        + boolean isOnDate(LocalDate date)
     }
 
+    %% ========================
+    %% == Service-Klassen ====
+    %% ========================
+
     class ImportService {
-        + void loadFromFile(String path)
-        - List~String~ readLines(Path path)
-        - void parseEntities(List~String~ lines)
+        + void importFromFile(String path)
+        - void parseDriver(String[] fields)
+        - void parseCar(String[] fields)
+        - void parseTrip(String[] fields)
     }
 
     class SearchService {
-        + List~Driver~ findDrivers(String nameFragment)
-        + List~Car~ findCars(String keyword)
+        + List~Driver~ searchDrivers(String namePart)
+        + List~Car~ searchCars(String keyword)
     }
 
     class BlitzService {
-        + Optional~Driver~ findDriverByLicensePlateAndTime(String licensePlate, LocalDateTime timestamp)
+        + Optional~Driver~ getDriverAtTime(String licensePlate, LocalDateTime timestamp)
     }
 
     class LostAndFoundService {
         + List~String~ findOtherDrivers(String driverId, LocalDate date)
     }
 
-    class Main {
-        + void main(String[] args)
-        - void handleArguments(String[] args)
+    %% ========================
+    %% == Kommando-Handling ==
+    %% ========================
+
+    class CommandLineHandler {
+        + void parseArgs(String[] args)
+        - void handleFahrersuche(String term)
+        - void handleFahrzeugsuche(String term)
+        - void handleBlitz(String input)
+        - void handleLiegenlassen(String input)
     }
 
-    Trip --> Driver : uses
+    class Main {
+        + void main(String[] args)
+    }
+
+    %% ========================
+    %% == Beziehungen =========
+    %% ========================
+
+    Trip --> Driver : assigned to
     Trip --> Car : uses
     ImportService --> Driver : creates
     ImportService --> Car : creates
     ImportService --> Trip : creates
+
+    Main --> CommandLineHandler : uses
+    CommandLineHandler --> SearchService : uses
+    CommandLineHandler --> BlitzService : uses
+    CommandLineHandler --> LostAndFoundService : uses
 ```
