@@ -23,6 +23,7 @@ public class LostAndFoundService {
         this.trips = trips;
     }
 
+    // Find other drivers who used the same vehicle on the same day
     public void findOtherDrivers(String input) {
         if (!input.contains(";"))
             throw new InvalidInputException("Ungültiges Format. Erwartet: F003;2024-08-13");
@@ -33,6 +34,7 @@ public class LostAndFoundService {
 
         Driver originalDriver = EntityFinder.findDriverById(drivers, driverId);
 
+        // Collect all cars used by the driver on that date
         Set<String> carIds = trips.stream()
                 .filter(t -> t.driverId().equals(driverId) && t.isOnDate(date))
                 .map(Trip::carId)
@@ -45,6 +47,7 @@ public class LostAndFoundService {
 
         Set<String> otherDriverEntries = new TreeSet<>();
 
+        // Check other drivers using the same cars on the same day
         for (String carId : carIds) {
             List<Trip> sameDayTrips = trips.stream()
                     .filter(t -> t.carId().equals(carId) && t.isOnDate(date) && !t.driverId().equals(driverId))
@@ -59,6 +62,7 @@ public class LostAndFoundService {
             }
         }
 
+        // Output result
         System.out.println("\nFahrer hat etwas im Fahrzeug liegen lassen!");
         System.out.println("Tag: " + date);
         System.out.printf("Ursprünglicher Fahrer: %s (ID: %s)%n", originalDriver.getFullName(), driverId);

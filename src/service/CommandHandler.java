@@ -20,6 +20,7 @@ public class CommandHandler {
         this.lostAndFoundService = lostAndFoundService;
     }
 
+    // Determines which command is being processed and routes it
     public void handle(String arg) {
         if (arg.startsWith("--fahrersuche=")) {
             handleFahrersuche(arg);
@@ -36,6 +37,7 @@ public class CommandHandler {
         }
     }
 
+    // Filters drivers by keyword in name
     private void handleFahrersuche(String arg) {
         String keyword = ArgParserUtils.extractValue(arg).toLowerCase();
         System.out.println("\nSuchergebnisse für Fahrer mit Schlüsselwort '" + keyword + "':");
@@ -44,6 +46,7 @@ public class CommandHandler {
                 .forEach(System.out::println);
     }
 
+    // Filters cars by keyword in manufacturer/model/plate
     private void handleFahrzeugsuche(String arg) {
         String keyword = ArgParserUtils.extractValue(arg).toLowerCase();
         System.out.println("\nSuchergebnisse für Fahrzeuge mit Schlüsselwort '" + keyword + "':");
@@ -52,6 +55,7 @@ public class CommandHandler {
                 .forEach(System.out::println);
     }
 
+    // Shows available command line options
     private static void printHelp() {
         System.out.println("Verfügbare Optionen:");
         System.out.println("--fahrersuche=<Suchbegriff>        : Suche nach Fahrern mit dem angegebenen Suchbegriff.");

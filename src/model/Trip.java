@@ -12,18 +12,22 @@ public record Trip(
         LocalDateTime startTime,
         LocalDateTime endTime
 ) {
+    // Calculates total driven distance
     public long getDistance() {
         return endKm - startKm;
     }
 
+    // Calculates trip duration
     public Duration getDuration() {
         return Duration.between(startTime, endTime);
     }
 
+    // Checks if timestamp is within trip time window
     public boolean includesTime(LocalDateTime timestamp) {
         return !timestamp.isBefore(startTime) && !timestamp.isAfter(endTime);
     }
 
+    // Checks if trip starts on given date
     public boolean isOnDate(LocalDate date) {
         return startTime.toLocalDate().equals(date);
     }

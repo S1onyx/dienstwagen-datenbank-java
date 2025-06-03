@@ -17,6 +17,7 @@ class ImportServiceTest {
         ImportService service = new ImportService();
         service.loadData("src/test/resources/test-import-valid.db");
 
+        // Check that all expected entries were imported
         List<Driver> drivers = service.getDrivers();
         List<Car> cars = service.getCars();
         List<Trip> trips = service.getTrips();
@@ -31,9 +32,8 @@ class ImportServiceTest {
         ImportService service = new ImportService();
         service.loadData("src/test/resources/test-import-invalid.db");
 
+        // Only one of the duplicate drivers should remain
         List<Driver> drivers = service.getDrivers();
-
-        // Einer der beiden doppelten Fahrer wird übersprungen → es bleibt nur einer
         assertEquals(1, drivers.size());
     }
 
@@ -42,9 +42,8 @@ class ImportServiceTest {
         ImportService service = new ImportService();
         service.loadData("src/test/resources/test-import-invalid.db");
 
+        // One trip is valid, the other has invalid date
         List<Trip> trips = service.getTrips();
-
-        // Nur 1 gültige Fahrt sollte importiert worden sein
         assertEquals(1, trips.size());
     }
 
@@ -53,9 +52,8 @@ class ImportServiceTest {
         ImportService service = new ImportService();
         service.loadData("src/test/resources/test-import-invalid.db");
 
+        // Trip with unknown driver should be ignored
         List<Trip> trips = service.getTrips();
-
-        // Die Fahrt mit unbekanntem Fahrer wird übersprungen
         assertTrue(trips.stream().noneMatch(t -> t.driverId().equals("UNKNOWN")));
     }
 
@@ -64,9 +62,8 @@ class ImportServiceTest {
         ImportService service = new ImportService();
         service.loadData("src/test/resources/test-import-invalid.db");
 
+        // Trips with invalid time range should not be imported
         List<Trip> trips = service.getTrips();
-
-        // Die Fahrt mit Endzeit vor Startzeit wird übersprungen
         assertTrue(trips.stream().noneMatch(t -> t.startTime().isAfter(t.endTime())));
     }
 }

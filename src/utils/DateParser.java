@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 
 public class DateParser {
 
+    // Parses ISO LocalDateTime or throws InvalidInputException
     public static LocalDateTime parseDateTime(String input) {
         try {
             return LocalDateTime.parse(input);
@@ -16,6 +17,7 @@ public class DateParser {
         }
     }
 
+    // Parses ISO LocalDate or throws InvalidInputException
     public static LocalDate parseDate(String input) {
         try {
             return LocalDate.parse(input);

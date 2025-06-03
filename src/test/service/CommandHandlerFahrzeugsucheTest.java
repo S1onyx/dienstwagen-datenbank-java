@@ -16,10 +16,12 @@ class CommandHandlerFahrzeugsucheTest {
 
     @Test
     void testFahrzeugsucheFindetTreffer() {
+        // Prepare car data
         Car c1 = new Car("C001", "BMW", "320i", "S-XX-1234");
         Car c2 = new Car("C002", "Audi", "A4", "S-AA-9876");
         List<Car> cars = List.of(c1, c2);
 
+        // Create command handler with only cars
         CommandHandler handler = new CommandHandler(
                 List.of(),
                 cars,
@@ -27,11 +29,14 @@ class CommandHandlerFahrzeugsucheTest {
                 new LostAndFoundService(List.of(), cars, List.of())
         );
 
+        // Capture system output
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         System.setOut(new PrintStream(output));
 
+        // Trigger vehicle search
         handler.handle("--fahrzeugsuche=bmw");
 
+        // Assert output contains match
         String result = output.toString().toLowerCase();
         assertTrue(result.contains("bmw 320i"));
     }

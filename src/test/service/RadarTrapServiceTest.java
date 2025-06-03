@@ -18,6 +18,7 @@ class RadarTrapServiceTest {
 
     @BeforeEach
     void setUp() {
+        // One driver, one trip, one car
         Driver driver = new Driver("F001", "Anna", "Muster", model.LicenseClass.B);
         Car car = new Car("C001", "BMW", "320i", "S-XX-1234");
 
@@ -35,24 +36,22 @@ class RadarTrapServiceTest {
 
     @Test
     void testFindDriverAtTime() {
+        // Time within trip → should succeed
         String input = "S-XX-1234;2024-01-01T10:30:00";
-
-        // Es soll kein Fehler auftreten
         assertDoesNotThrow(() -> radarService.findDriverAtTime(input));
     }
 
     @Test
     void testFindDriverAtTimeNoMatch() {
+        // Time outside trip → no result, no error
         String input = "S-XX-1234;2024-01-01T12:00:00";
-
-        // Kein Treffer, aber auch kein Fehler – nur "Kein Fahrer gefunden."
         assertDoesNotThrow(() -> radarService.findDriverAtTime(input));
     }
 
     @Test
     void testInvalidFormatThrows() {
-        String input = "S-XX-1234 2024-01-01T10:00:00"; // fehlt das Semikolon
-
+        // Missing semicolon → should throw
+        String input = "S-XX-1234 2024-01-01T10:00:00";
         assertThrows(IllegalArgumentException.class, () -> radarService.findDriverAtTime(input));
     }
 }
