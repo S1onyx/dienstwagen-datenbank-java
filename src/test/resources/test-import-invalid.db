@@ -1,0 +1,12 @@
+New_Entity: fahrerId,vorname,nachname,fuehrerscheinklasse
+F001,Anna,Muster,B
+F001,Anna,Muster,B
+
+New_Entity: fahrzeugId,hersteller,modell,kennzeichen
+C001,BMW,320i,S-XX-1234
+
+New_Entity: fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
+UNKNOWN,C001,10000,10100,2024-01-01T10:00:00,2024-01-01T11:00:00
+F001,C001,10000,10100,FEHLERZEIT,2024-01-01T11:00:00
+F001,C001,10100,10000,2024-01-01T12:00:00,2024-01-01T11:00:00
+F001,C001,10000,10100,2024-01-01T10:00:00,2024-01-01T11:00:00

@@ -1,7 +1,9 @@
 package service;
 
+import exceptions.DuplicateEntityException;
 import model.Car;
 import model.Driver;
+import model.LicenseClass;
 import model.Trip;
 
 import java.io.BufferedReader;
@@ -67,27 +69,42 @@ public class ImportService {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrereintrag");
         String id = parts[0];
         if (drivers.stream().anyMatch(d -> d.id().equals(id)))
-            throw new IllegalStateException("Fahrer mit ID " + id + " bereits vorhanden");
-        drivers.add(new Driver(id, parts[1], parts[2], parts[3]));
+            throw new DuplicateEntityException("Fahrer mit ID " + id + " bereits vorhanden");
+        drivers.add(new Driver(id, parts[1], parts[2], LicenseClass.fromString(parts[3])));
     }
 
     private void addCar(String[] parts, String rawLine) {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrzeugeintrag");
         String id = parts[0];
         if (cars.stream().anyMatch(c -> c.id().equals(id)))
-            throw new IllegalStateException("Fahrzeug mit ID " + id + " bereits vorhanden");
+            throw new DuplicateEntityException("Fahrzeug mit ID " + id + " bereits vorhanden");
         cars.add(new Car(id, parts[1], parts[2], parts[3]));
     }
 
     private void addTrip(String[] parts, String rawLine) {
         if (parts.length < 6) throw new IllegalArgumentException("Unvollständiger Trip");
+
+        String driverId = parts[0];
+        String carId = parts[1];
+
+        if (drivers.stream().noneMatch(d -> d.id().equals(driverId)))
+            throw new IllegalArgumentException("Unbekannte Fahrer-ID: " + driverId);
+        if (cars.stream().noneMatch(c -> c.id().equals(carId)))
+            throw new IllegalArgumentException("Unbekannte Fahrzeug-ID: " + carId);
+
+        var startTime = parse(parts[4]);
+        var endTime = parse(parts[5]);
+
+        if (endTime.isBefore(startTime))
+            throw new IllegalArgumentException("Endzeit liegt vor Startzeit");
+
         trips.add(new Trip(
-                parts[0],
-                parts[1],
+                driverId,
+                carId,
                 Integer.parseInt(parts[2]),
                 Integer.parseInt(parts[3]),
-                parse(parts[4]),
-                parse(parts[5])
+                startTime,
+                endTime
         ));
     }
 
