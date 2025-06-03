@@ -86,65 +86,131 @@ Die wichtigsten Funktionen wurden mit Unit-Tests abgesichert:
 
 ```mermaid
 classDiagram
-direction TB
-
+%% === Main Entry ===
 class Main {
-  +main(String[]): void
+    +main(String[]): void
 }
 
-class ImportService {
-  +loadData(filePath): void
-  +getDrivers(): List~Driver~
-  +getCars(): List~Car~
-  +getTrips(): List~Trip~
+%% === Exceptions ===
+class DuplicateEntityException {
+    +DuplicateEntityException(String)
+}
+class EntityNotFoundException {
+    +EntityNotFoundException(String)
+}
+class InvalidInputException {
+    +InvalidInputException(String)
 }
 
-class CommandHandler {
-  +handle(String): void
-}
+DuplicateEntityException --|> RuntimeException
+EntityNotFoundException --|> RuntimeException
+InvalidInputException --|> RuntimeException
 
-class RadarTrapService {
-  +findDriverAtTime(String): void
-}
-
-class LostAndFoundService {
-  +findOtherDrivers(String): void
-}
-
-class Trip {
-  +getDistance(): long
-  +getDuration(): Duration
-  +includesTime(LocalDateTime): boolean
-  +isOnDate(LocalDate): boolean
-}
-
+%% === Models ===
 class Driver {
-  +getFullName(): String
+    +String id()
+    +String firstName()
+    +String lastName()
+    +LicenseClass licenseClass()
+    +getFullName(): String
+    +toString(): String
 }
 
 class Car {
-  +getDisplayName(): String
+    +String id()
+    +String manufacturer()
+    +String model()
+    +String licensePlate()
+    +getDisplayName(): String
+    +toString(): String
 }
 
-class LicenseClass
-LicenseClass : enum { A, B, C, D, BE, CE, DE, AM, A1, A2 }
+class Trip {
+    +String driverId()
+    +String carId()
+    +int startKm()
+    +int endKm()
+    +LocalDateTime startTime()
+    +LocalDateTime endTime()
+    +getDistance(): long
+    +getDuration(): Duration
+    +includesTime(LocalDateTime): boolean
+    +isOnDate(LocalDate): boolean
+    +toString(): String
+}
+
+class LicenseClass {
+    <<enum>>
+    +fromString(String): LicenseClass
+}
+
+Driver --> LicenseClass
+Trip --> Driver : driverId
+Trip --> Car : carId
+
+%% === Services ===
+class ImportService {
+    +loadData(String): void
+    +getDrivers(): List<Driver>
+    +getCars(): List<Car>
+    +getTrips(): List<Trip>
+    -detectEntityType(String): String
+    -addDriver(String[], String): void
+    -addCar(String[], String): void
+    -addTrip(String[], String): void
+}
+
+class RadarTrapService {
+    +findDriverAtTime(String): void
+}
+
+class LostAndFoundService {
+    +findOtherDrivers(String): void
+}
+
+class CommandHandler {
+    +handle(String): void
+    -handleFahrersuche(String): void
+    -handleFahrzeugsuche(String): void
+    -printHelp(): void
+}
 
 Main --> ImportService
+Main --> RadarTrapService
+Main --> LostAndFoundService
 Main --> CommandHandler
+ImportService --> Driver
+ImportService --> Car
+ImportService --> Trip
 CommandHandler --> RadarTrapService
 CommandHandler --> LostAndFoundService
+
 RadarTrapService --> Trip
 RadarTrapService --> Car
 RadarTrapService --> Driver
 LostAndFoundService --> Trip
 LostAndFoundService --> Car
 LostAndFoundService --> Driver
-ImportService --> Trip
-ImportService --> Car
-ImportService --> Driver
-Trip --> Driver
-Trip --> Car
-Driver --> LicenseClass
+
+%% === Utilities ===
+class ArgParserUtils {
+    +extractValue(String): String
+}
+class DateParser {
+    +parseDateTime(String): LocalDateTime
+    +parseDate(String): LocalDate
+}
+class EntityFinder {
+    +findDriverById(List<Driver>, String): Driver
+    +findCarById(List<Car>, String): Car
+    +findCarByLicensePlate(List<Car>, String): Car
+}
+
+CommandHandler --> ArgParserUtils
+RadarTrapService --> DateParser
+RadarTrapService --> EntityFinder
+LostAndFoundService --> DateParser
+LostAndFoundService --> EntityFinder
 ```
 
 ---
