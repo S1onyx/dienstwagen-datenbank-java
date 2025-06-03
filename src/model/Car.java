@@ -1,36 +1,12 @@
 package model;
 
-public class Car {
-    private final String id;
-    private final String manufacturer;
-    private final String model;
-    private final String licensePlate;
-
-    public Car(String id, String manufacturer, String model, String licensePlate) {
-        this.id = id;
-        this.manufacturer = manufacturer.trim();
-        this.model = model.trim();
-        this.licensePlate = licensePlate.trim();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getManufacturer() {
-        return manufacturer;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
+public record Car(String id, String manufacturer, String model, String licensePlate) {
+    public String getDisplayName() {
+        return "%s %s (%s)".formatted(manufacturer, model, licensePlate);
     }
 
     @Override
     public String toString() {
-        return id + ": " + manufacturer + " " + model + " (" + licensePlate + ")";
+        return "%s: %s %s (%s)".formatted(id, manufacturer, model, licensePlate);
     }
 }

@@ -1,8 +1,11 @@
 package service;
 
+import exceptions.InvalidInputException;
 import model.Car;
 import model.Driver;
 import model.Trip;
+import utils.DateParser;
+import utils.EntityFinder;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -21,90 +24,54 @@ public class LostAndFoundService {
     }
 
     public void findOtherDrivers(String input) {
-        if (!input.contains(";")) {
-            System.out.println("Ungültiges Format. Erwartet: F003;2024-08-13");
-            return;
-        }
+        if (!input.contains(";"))
+            throw new InvalidInputException("Ungültiges Format. Erwartet: F003;2024-08-13");
 
         String[] parts = input.split(";", 2);
         String driverId = parts[0].trim();
-        String dateString = parts[1].trim();
+        LocalDate date = DateParser.parseDate(parts[1].trim());
 
-        LocalDate date;
-        try {
-            date = LocalDate.parse(dateString);
-        } catch (Exception e) {
-            System.out.println("Fehler: Datum muss im Format yyyy-MM-dd angegeben sein.");
-            return;
-        }
+        Driver originalDriver = EntityFinder.findDriverById(drivers, driverId);
 
-        Optional<Driver> originalDriverOpt = drivers.stream()
-                .filter(d -> d.getId().equals(driverId))
-                .findFirst();
-
-        if (originalDriverOpt.isEmpty()) {
-            System.out.println("Fahrer mit ID \"" + driverId + "\" nicht gefunden.");
-            return;
-        }
-
-        Driver originalDriver = originalDriverOpt.get();
-
-        // Fahrzeuge, die der Fahrer an diesem Tag gefahren hat
         Set<String> carIds = trips.stream()
-                .filter(t -> t.getDriverId().equals(driverId) && t.getStartTime().toLocalDate().equals(date))
-                .map(Trip::getCarId)
+                .filter(t -> t.driverId().equals(driverId) && t.isOnDate(date))
+                .map(Trip::carId)
                 .collect(Collectors.toSet());
 
         if (carIds.isEmpty()) {
-            System.out.println("Keine Fahrten für Fahrer " + driverId + " am " + date + " gefunden.");
+            System.out.printf("Keine Fahrten für Fahrer %s am %s gefunden.%n", driverId, date);
             return;
         }
 
-        Set<String> otherDriverEntries = new HashSet<>();
+        Set<String> otherDriverEntries = new TreeSet<>();
 
         for (String carId : carIds) {
-            List<Trip> tripsWithSameCar = trips.stream()
-                    .filter(t -> t.getCarId().equals(carId) &&
-                            t.getStartTime().toLocalDate().equals(date) &&
-                            !t.getDriverId().equals(driverId))
+            List<Trip> sameDayTrips = trips.stream()
+                    .filter(t -> t.carId().equals(carId) && t.isOnDate(date) && !t.driverId().equals(driverId))
                     .toList();
 
-            for (Trip trip : tripsWithSameCar) {
-                Driver otherDriver = drivers.stream()
-                        .filter(d -> d.getId().equals(trip.getDriverId()))
-                        .findFirst()
-                        .orElse(null);
+            for (Trip trip : sameDayTrips) {
+                Driver otherDriver = EntityFinder.findDriverById(drivers, trip.driverId());
+                Car car = EntityFinder.findCarById(cars, carId);
 
-                if (otherDriver != null) {
-                    Car car = cars.stream()
-                            .filter(c -> c.getId().equals(carId))
-                            .findFirst()
-                            .orElse(null);
-
-                    if (car != null) {
-                        String entry = otherDriver.getFirstName() + " " + otherDriver.getLastName()
-                                + " (ID: " + otherDriver.getId() + ", " + car.getLicensePlate() + ")";
-                        otherDriverEntries.add(entry);
-                    }
-                }
+                otherDriverEntries.add("%s (ID: %s, %s)"
+                        .formatted(otherDriver.getFullName(), otherDriver.id(), car.licensePlate()));
             }
         }
 
         System.out.println("\nFahrer hat etwas im Fahrzeug liegen lassen!");
         System.out.println("Tag: " + date);
-        System.out.println("Ursprünglicher Fahrer: " + originalDriver.getFirstName() + " " + originalDriver.getLastName()
-                + " (ID: " + driverId + ")");
-        System.out.println("Fahrzeuge an diesem Tag: " + carIds.stream()
-                .map(id -> cars.stream().filter(c -> c.getId().equals(id)).findFirst().map(Car::getLicensePlate).orElse("Unbekannt"))
+        System.out.printf("Ursprünglicher Fahrer: %s (ID: %s)%n", originalDriver.getFullName(), driverId);
+        System.out.print("Fahrzeuge an diesem Tag: ");
+        System.out.println(carIds.stream()
+                .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::licensePlate).orElse("Unbekannt"))
                 .collect(Collectors.joining(", ")));
 
         if (otherDriverEntries.isEmpty()) {
             System.out.println("Keine anderen Fahrer gefunden.");
         } else {
             System.out.println("Andere Fahrer dieser Fahrzeuge:");
-            otherDriverEntries.stream()
-                    .sorted()
-                    .forEach(entry -> System.out.println("• " + entry));
+            otherDriverEntries.forEach(entry -> System.out.println("• " + entry));
         }
     }
 }

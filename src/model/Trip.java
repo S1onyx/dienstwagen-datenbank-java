@@ -1,53 +1,36 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class Trip {
-    private final String driverId;
-    private final String carId;
-    private final int startKm;
-    private final int endKm;
-    private final LocalDateTime startTime;
-    private final LocalDateTime endTime;
-
-    public Trip(String driverId, String carId, int startKm, int endKm, LocalDateTime startTime, LocalDateTime endTime) {
-        this.driverId = driverId;
-        this.carId = carId;
-        this.startKm = startKm;
-        this.endKm = endKm;
-        this.startTime = startTime;
-        this.endTime = endTime;
+public record Trip(
+        String driverId,
+        String carId,
+        int startKm,
+        int endKm,
+        LocalDateTime startTime,
+        LocalDateTime endTime
+) {
+    public long getDistance() {
+        return endKm - startKm;
     }
 
-    public String getDriverId() {
-        return driverId;
+    public Duration getDuration() {
+        return Duration.between(startTime, endTime);
     }
 
-    public String getCarId() {
-        return carId;
+    public boolean includesTime(LocalDateTime timestamp) {
+        return !timestamp.isBefore(startTime) && !timestamp.isAfter(endTime);
     }
 
-    public int getStartKm() {
-        return startKm;
-    }
-
-    public int getEndKm() {
-        return endKm;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
+    public boolean isOnDate(LocalDate date) {
+        return startTime.toLocalDate().equals(date);
     }
 
     @Override
     public String toString() {
-        return "Fahrer " + driverId + " mit Fahrzeug " + carId +
-                " von " + startKm + " km bis " + endKm + " km, " +
-                " Startzeit: " + startTime + ", Endzeit: " + endTime +
-                " hat insgesamt " + (endKm - startKm) + " km zurückgelegt.";
+        return "Fahrer %s mit Fahrzeug %s von %dkm bis %dkm, Start: %s, Ende: %s, Strecke: %dkm"
+                .formatted(driverId, carId, startKm, endKm, startTime, endTime, getDistance());
     }
 }
