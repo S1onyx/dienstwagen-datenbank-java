@@ -3,6 +3,7 @@ import model.Car;
 import model.Trip;
 import service.ImportService;
 import service.RadarTrapService;
+import service.LostAndFoundService;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class Main {
         List<Trip> trips = importService.getTrips();
 
         RadarTrapService radarTrapService = new RadarTrapService(drivers, cars, trips);
+        LostAndFoundService lostAndFoundService = new LostAndFoundService(drivers, cars, trips);
 
         for (String arg : args) {
             if (arg.startsWith("--fahrersuche=")) {
@@ -33,6 +35,18 @@ public class Main {
             } else if (arg.startsWith("--fahrerZeitpunkt=")) {
                 String input = arg.split("=", 2)[1].trim();
                 radarTrapService.findDriverAtTime(input);
+            } else if (arg.startsWith("--fahrerDatum=")) {
+                String input = arg.split("=", 2)[1].trim();
+                lostAndFoundService.findOtherDrivers(input);
+            } else if(arg.startsWith("--help")) {
+                System.out.println(arg);
+                System.out.println("Verfügbare Optionen:");
+                System.out.println("--fahrersuche=<Suchbegriff> : Suche nach Fahrern mit dem angegebenen Suchbegriff.");
+                System.out.println("--fahrzeugsuche=<Suchbegriff> : Suche nach Fahrzeugen mit dem angegebenen Suchbegriff.");
+                System.out.println("--fahrerZeitpunkt=<Kennzeichen>;yyyy-MM-ddTHH:mm:ss : Finde Fahrer zum angegebenen Zeitpunkt für das Fahrzeug mit dem Kennzeichen.");
+                System.out.println("--fahrerDatum=<Fahrer-ID>;yyyy-MM-dd : Finde andere Fahrer, die am angegebenen Datum dasselbe Fahrzeug gefahren haben.");
+            } else {
+                System.out.println("Unbekannte Option: " + arg);
             }
         }
     }
