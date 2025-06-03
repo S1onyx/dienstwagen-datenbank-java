@@ -2,6 +2,7 @@ import model.Driver;
 import model.Car;
 import model.Trip;
 import service.ImportService;
+import service.RadarTrapService;
 
 import java.util.List;
 
@@ -14,14 +15,7 @@ public class Main {
         List<Car> cars = importService.getCars();
         List<Trip> trips = importService.getTrips();
 
-//        System.out.println("\nFahrer:");
-//        drivers.stream().limit(10).forEach(System.out::println);
-//
-//        System.out.println("\nFahrzeuge:");
-//        cars.stream().limit(10).forEach(System.out::println);
-//
-//        System.out.println("\nFahrten:");
-//        trips.stream().limit(10).forEach(System.out::println);
+        RadarTrapService radarTrapService = new RadarTrapService(drivers, cars, trips);
 
         for (String arg : args) {
             if (arg.startsWith("--fahrersuche=")) {
@@ -36,6 +30,9 @@ public class Main {
                 cars.stream()
                         .filter(car -> (car.getManufacturer() + car.getModel() + car.getLicensePlate()).toLowerCase().contains(keyword))
                         .forEach(System.out::println);
+            } else if (arg.startsWith("--fahrerZeitpunkt=")) {
+                String input = arg.split("=", 2)[1].trim();
+                radarTrapService.findDriverAtTime(input);
             }
         }
     }

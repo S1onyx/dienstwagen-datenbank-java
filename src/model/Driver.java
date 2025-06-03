@@ -34,3 +34,4 @@ public class Driver {
         return firstName + " " + lastName + " (" + id + ", Klasse " + licenseClass + ")";
     }
 }
+

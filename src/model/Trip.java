@@ -45,13 +45,9 @@ public class Trip {
 
     @Override
     public String toString() {
-        return "Trip{" +
-                "driverId='" + driverId + '\'' +
-                ", carId='" + carId + '\'' +
-                ", startKm=" + startKm +
-                ", endKm=" + endKm +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                '}';
+        return "Fahrer " + driverId + " mit Fahrzeug " + carId +
+                " von " + startKm + " km bis " + endKm + " km, " +
+                " Startzeit: " + startTime + ", Endzeit: " + endTime +
+                " hat insgesamt " + (endKm - startKm) + " km zurückgelegt.";
     }
 }
