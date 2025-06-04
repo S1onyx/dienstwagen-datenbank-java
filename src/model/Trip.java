@@ -27,9 +27,11 @@ public record Trip(
         return !timestamp.isBefore(startTime) && !timestamp.isAfter(endTime);
     }
 
-    // Checks if trip starts on given date
-    public boolean isOnDate(LocalDate date) {
-        return startTime.toLocalDate().equals(date);
+    // Checks if trip overlaps with a given date (even partially)
+    public boolean overlapsWithDate(LocalDate date) {
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
+        return !endTime.isBefore(dayStart) && !startTime.isAfter(dayEnd);
     }
 
     @Override
