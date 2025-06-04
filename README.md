@@ -68,10 +68,10 @@ Die wichtigsten Funktionen wurden mit Unit-Tests abgesichert:
 - **ImportServiceTest**  
   Prüft Datenimport, Fehlerbehandlung bei Duplikaten, Datumsformaten und Referenzen.
 
-- **CommandHandlerFahrersucheTest**  
+- **DriverSearchServiceTest**  
   Testet ob Fahrersuche über die Kommandozeile funktioniert.
 
-- **CommandHandlerFahrzeugsucheTest**  
+- **CarSearchServiceTest**  
   Testet ob Fahrzeugsuche korrekt filtert.
 
 - **LostAndFoundServiceTest**  
@@ -86,131 +86,137 @@ Die wichtigsten Funktionen wurden mit Unit-Tests abgesichert:
 
 ```mermaid
 classDiagram
-%% === Main Entry ===
 class Main {
-    +main(String[]): void
+  +main(args: String[]): void
 }
 
-%% === Exceptions ===
-class DuplicateEntityException {
-    +DuplicateEntityException(String)
-}
-class EntityNotFoundException {
-    +EntityNotFoundException(String)
-}
-class InvalidInputException {
-    +InvalidInputException(String)
-}
-
-DuplicateEntityException --|> RuntimeException
-EntityNotFoundException --|> RuntimeException
-InvalidInputException --|> RuntimeException
-
-%% === Models ===
 class Driver {
-    +String id()
-    +String firstName()
-    +String lastName()
-    +LicenseClass licenseClass()
-    +getFullName(): String
-    +toString(): String
+  String id
+  String firstName
+  String lastName
+  LicenseClass licenseClass
+  +getFullName(): String
+  +toString(): String
 }
 
 class Car {
-    +String id()
-    +String manufacturer()
-    +String model()
-    +String licensePlate()
-    +getDisplayName(): String
-    +toString(): String
+  String id
+  String manufacturer
+  String model
+  String licensePlate
+  +toString(): String
 }
 
 class Trip {
-    +String driverId()
-    +String carId()
-    +int startKm()
-    +int endKm()
-    +LocalDateTime startTime()
-    +LocalDateTime endTime()
-    +getDistance(): long
-    +getDuration(): Duration
-    +includesTime(LocalDateTime): boolean
-    +isOnDate(LocalDate): boolean
-    +toString(): String
+  String driverId
+  String carId
+  int startKm
+  int endKm
+  LocalDateTime startTime
+  LocalDateTime endTime
+  +getDistance(): long
+  +getDuration(): Duration
+  +includesTime(timestamp: LocalDateTime): boolean
+  +overlapsWithDate(date: LocalDate): boolean
+  +toString(): String
 }
 
 class LicenseClass {
-    <<enum>>
-    +fromString(String): LicenseClass
+  <<enum>>
+  +fromString(value: String): LicenseClass
 }
 
-Driver --> LicenseClass
-Trip --> Driver : driverId
-Trip --> Car : carId
-
-%% === Services ===
 class ImportService {
-    +loadData(String): void
-    +getDrivers(): List<Driver>
-    +getCars(): List<Car>
-    +getTrips(): List<Trip>
-    -detectEntityType(String): String
-    -addDriver(String[], String): void
-    -addCar(String[], String): void
-    -addTrip(String[], String): void
-}
-
-class RadarTrapService {
-    +findDriverAtTime(String): void
-}
-
-class LostAndFoundService {
-    +findOtherDrivers(String): void
+  -List~Driver~ drivers
+  -List~Car~ cars
+  -List~Trip~ trips
+  +loadData(filePath: String): void
+  +getDrivers(): List~Driver~
+  +getCars(): List~Car~
+  +getTrips(): List~Trip~
+  -detectEntityType(header: String): String
+  -addDriver(parts: String[], rawLine: String): void
+  -addCar(parts: String[], rawLine: String): void
+  -addTrip(parts: String[], rawLine: String): void
 }
 
 class CommandHandler {
-    +handle(String): void
-    -handleFahrersuche(String): void
-    -handleFahrzeugsuche(String): void
-    -printHelp(): void
+  -RadarTrapService radarTrapService
+  -LostAndFoundService lostAndFoundService
+  -DriverSearchService driverSearchService
+  -CarSearchService carSearchService
+  +handle(arg: String): void
+  -printHelp(): void
+}
+
+class RadarTrapService {
+  -List~Driver~ drivers
+  -List~Car~ cars
+  -List~Trip~ trips
+  +findDriverAtTime(input: String): void
+}
+
+class LostAndFoundService {
+  -List~Driver~ drivers
+  -List~Car~ cars
+  -List~Trip~ trips
+  +findOtherDrivers(input: String): void
+}
+
+class DriverSearchService {
+  -List~Driver~ drivers
+  +searchByName(keyword: String): void
+}
+
+class CarSearchService {
+  -List~Car~ cars
+  +searchByKeyword(keyword: String): void
+}
+
+class ArgParserUtils {
+  +extractValue(arg: String): String
+}
+
+class DateParserUtils {
+  +parseDateTime(input: String): LocalDateTime
+  +parseDate(input: String): LocalDate
+}
+
+class EntityFinderUtils {
+  +findDriverById(drivers: List~Driver~, id: String): Driver
+  +findCarById(cars: List~Car~, id: String): Car
+  +findCarByLicensePlate(cars: List~Car~, licensePlate: String): Car
 }
 
 Main --> ImportService
 Main --> RadarTrapService
 Main --> LostAndFoundService
+Main --> DriverSearchService
+Main --> CarSearchService
 Main --> CommandHandler
+
+CommandHandler --> RadarTrapService
+CommandHandler --> LostAndFoundService
+CommandHandler --> DriverSearchService
+CommandHandler --> CarSearchService
+
+RadarTrapService --> Driver
+RadarTrapService --> Car
+RadarTrapService --> Trip
+
+LostAndFoundService --> Driver
+LostAndFoundService --> Car
+LostAndFoundService --> Trip
+
 ImportService --> Driver
 ImportService --> Car
 ImportService --> Trip
-CommandHandler --> RadarTrapService
-CommandHandler --> LostAndFoundService
-
-RadarTrapService --> Trip
-RadarTrapService --> Car
-RadarTrapService --> Driver
-LostAndFoundService --> Trip
-LostAndFoundService --> Car
-LostAndFoundService --> Driver
-
-%% === Utilities ===
-class ArgParserUtils {
-    +extractValue(String): String
-}
-class DateParser {
-    +parseDateTime(String): LocalDateTime
-    +parseDate(String): LocalDate
-}
-class EntityFinder {
-    +findDriverById(List<Driver>, String): Driver
-    +findCarById(List<Car>, String): Car
-    +findCarByLicensePlate(List<Car>, String): Car
-}
 
 CommandHandler --> ArgParserUtils
-RadarTrapService --> DateParser
-RadarTrapService --> EntityFinder
-LostAndFoundService --> DateParser
-LostAndFoundService --> EntityFinder
+RadarTrapService --> DateParserUtils
+RadarTrapService --> EntityFinderUtils
+LostAndFoundService --> DateParserUtils
+LostAndFoundService --> EntityFinderUtils
 ```
 
 ---
@@ -231,4 +237,4 @@ LostAndFoundService --> EntityFinder
 
 ---
 
-© 2025 Simon Riedinger – DHBW Stuttgart  
+© 2025 Simon Riedinger – DHBW Stuttgart

@@ -2,10 +2,7 @@ import exceptions.EntityNotFoundException;
 import exceptions.InvalidInputException;
 import model.Car;
 import model.Driver;
-import service.ImportService;
-import service.LostAndFoundService;
-import service.RadarTrapService;
-import service.CommandHandler;
+import service.*;
 
 import java.util.List;
 
@@ -24,7 +21,14 @@ public class Main {
             // Initialize services with data
             RadarTrapService radarTrapService = new RadarTrapService(drivers, cars, trips);
             LostAndFoundService lostAndFoundService = new LostAndFoundService(drivers, cars, trips);
-            CommandHandler commandHandler = new CommandHandler(drivers, cars, radarTrapService, lostAndFoundService);
+            DriverSearchService driverSearchService = new DriverSearchService(drivers);
+            CarSearchService carSearchService = new CarSearchService(cars);
+            CommandHandler commandHandler = new CommandHandler(
+                    radarTrapService,
+                    lostAndFoundService,
+                    driverSearchService,
+                    carSearchService
+            );
 
             // Process each command line argument
             for (String arg : args) {

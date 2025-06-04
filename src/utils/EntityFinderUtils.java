@@ -6,7 +6,7 @@ import model.Driver;
 
 import java.util.List;
 
-public class EntityFinder {
+public class EntityFinderUtils {
 
     // Find driver by ID or throw exception
     public static Driver findDriverById(List<Driver> drivers, String id) {

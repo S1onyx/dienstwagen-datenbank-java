@@ -3,8 +3,8 @@ package service;
 import model.Car;
 import model.Driver;
 import model.Trip;
-import utils.DateParser;
-import utils.EntityFinder;
+import utils.DateParserUtils;
+import utils.EntityFinderUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,9 +28,9 @@ public class RadarTrapService {
 
         String[] parts = input.split(";", 2);
         String licensePlate = parts[0].trim();
-        LocalDateTime timestamp = DateParser.parseDateTime(parts[1].trim());
+        LocalDateTime timestamp = DateParserUtils.parseDateTime(parts[1].trim());
 
-        Car car = EntityFinder.findCarByLicensePlate(cars, licensePlate);
+        Car car = EntityFinderUtils.findCarByLicensePlate(cars, licensePlate);
 
         // Find trips matching the car and timestamp
         List<Trip> matchingTrips = trips.stream()
@@ -44,7 +44,7 @@ public class RadarTrapService {
 
         // Print all matches
         for (Trip trip : matchingTrips) {
-            Driver driver = EntityFinder.findDriverById(drivers, trip.driverId());
+            Driver driver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
             System.out.println("\nGeblitzt während folgender Fahrt:");
             System.out.println("Fahrzeug: " + car);
             System.out.println("Fahrt: " + trip);

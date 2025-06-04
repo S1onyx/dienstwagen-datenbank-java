@@ -1,6 +1,11 @@
 package model;
 
-public record Driver(String id, String firstName, String lastName, LicenseClass licenseClass) {
+public record Driver(
+        String id,
+        String firstName,
+        String lastName,
+        LicenseClass licenseClass
+) {
 
     // Returns full name (first + last name)
     public String getFullName() {

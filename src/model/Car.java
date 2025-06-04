@@ -1,6 +1,11 @@
 package model;
 
-public record Car(String id, String manufacturer, String model, String licensePlate) {
+public record Car(
+        String id,
+        String manufacturer,
+        String model,
+        String licensePlate
+) {
 
     // Returns formatted car description
     @Override

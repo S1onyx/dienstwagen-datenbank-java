@@ -4,8 +4,8 @@ import exceptions.InvalidInputException;
 import model.Car;
 import model.Driver;
 import model.Trip;
-import utils.DateParser;
-import utils.EntityFinder;
+import utils.DateParserUtils;
+import utils.EntityFinderUtils;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -30,9 +30,9 @@ public class LostAndFoundService {
 
         String[] parts = input.split(";", 2);
         String driverId = parts[0].trim();
-        LocalDate date = DateParser.parseDate(parts[1].trim());
+        LocalDate date = DateParserUtils.parseDate(parts[1].trim());
 
-        Driver originalDriver = EntityFinder.findDriverById(drivers, driverId);
+        Driver originalDriver = EntityFinderUtils.findDriverById(drivers, driverId);
 
         // Collect all cars used by the driver on that date (overlapping trips)
         Set<String> carIds = trips.stream()
@@ -56,8 +56,8 @@ public class LostAndFoundService {
                     .toList();
 
             for (Trip trip : sameDayTrips) {
-                Driver otherDriver = EntityFinder.findDriverById(drivers, trip.driverId());
-                Car car = EntityFinder.findCarById(cars, carId);
+                Driver otherDriver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
+                Car car = EntityFinderUtils.findCarById(cars, carId);
 
                 otherDriverEntries.add("%s (IDs: %s, %s)"
                         .formatted(otherDriver.getFullName(), otherDriver.id(), car.id()));

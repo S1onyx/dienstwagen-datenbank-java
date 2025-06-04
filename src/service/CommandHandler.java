@@ -1,31 +1,32 @@
 package service;
 
-import model.Car;
-import model.Driver;
 import utils.ArgParserUtils;
 
-import java.util.List;
-
 public class CommandHandler {
-    private final List<Driver> drivers;
-    private final List<Car> cars;
     private final RadarTrapService radarTrapService;
     private final LostAndFoundService lostAndFoundService;
+    private final DriverSearchService driverSearchService;
+    private final CarSearchService carSearchService;
 
-    public CommandHandler(List<Driver> drivers, List<Car> cars,
-                          RadarTrapService radarTrapService, LostAndFoundService lostAndFoundService) {
-        this.drivers = drivers;
-        this.cars = cars;
+    public CommandHandler(
+            RadarTrapService radarTrapService,
+            LostAndFoundService lostAndFoundService,
+            DriverSearchService driverSearchService,
+            CarSearchService carSearchService
+    ) {
         this.radarTrapService = radarTrapService;
         this.lostAndFoundService = lostAndFoundService;
+        this.driverSearchService = driverSearchService;
+        this.carSearchService = carSearchService;
     }
 
-    // Determines which command is being processed and routes it
     public void handle(String arg) {
         if (arg.startsWith("--fahrersuche=")) {
-            handleFahrersuche(arg);
+            String keyword = ArgParserUtils.extractValue(arg);
+            driverSearchService.searchByName(keyword);
         } else if (arg.startsWith("--fahrzeugsuche=")) {
-            handleFahrzeugsuche(arg);
+            String keyword = ArgParserUtils.extractValue(arg);
+            carSearchService.searchByKeyword(keyword);
         } else if (arg.startsWith("--fahrerZeitpunkt=")) {
             radarTrapService.findDriverAtTime(ArgParserUtils.extractValue(arg));
         } else if (arg.startsWith("--fahrerDatum=")) {
@@ -37,25 +38,6 @@ public class CommandHandler {
         }
     }
 
-    // Filters drivers by keyword in name
-    private void handleFahrersuche(String arg) {
-        String keyword = ArgParserUtils.extractValue(arg).toLowerCase();
-        System.out.println("\nSuchergebnisse für Fahrer mit Schlüsselwort '" + keyword + "':");
-        drivers.stream()
-                .filter(d -> (d.firstName() + " " + d.lastName()).toLowerCase().contains(keyword))
-                .forEach(System.out::println);
-    }
-
-    // Filters cars by keyword in manufacturer/model/plate
-    private void handleFahrzeugsuche(String arg) {
-        String keyword = ArgParserUtils.extractValue(arg).toLowerCase();
-        System.out.println("\nSuchergebnisse für Fahrzeuge mit Schlüsselwort '" + keyword + "':");
-        cars.stream()
-                .filter(c -> (c.manufacturer() + c.model() + c.licensePlate()).toLowerCase().contains(keyword))
-                .forEach(System.out::println);
-    }
-
-    // Shows available command line options
     private static void printHelp() {
         System.out.println("Verfügbare Optionen:");
         System.out.println("--fahrersuche=<Suchbegriff>        : Suche nach Fahrern mit dem angegebenen Suchbegriff.");

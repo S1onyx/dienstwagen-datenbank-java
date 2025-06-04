@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
-public class DateParser {
+public class DateParserUtils {
 
     // Parses ISO LocalDateTime or throws InvalidInputException
     public static LocalDateTime parseDateTime(String input) {
