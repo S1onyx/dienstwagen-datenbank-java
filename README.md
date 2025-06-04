@@ -86,12 +86,17 @@ Die wichtigsten Funktionen wurden mit Unit-Tests abgesichert:
 
 ```mermaid
 classDiagram
-%% === Main Entry ===
+%% === Main Entry Point ===
 class Main {
     +main(String[]): void
 }
+Main --> ImportService
+Main --> RadarTrapService
+Main --> LostAndFoundService
+Main --> CommandHandler
 
 %% === Exceptions ===
+class RuntimeException
 class DuplicateEntityException {
     +DuplicateEntityException(String)
 }
@@ -101,7 +106,6 @@ class EntityNotFoundException {
 class InvalidInputException {
     +InvalidInputException(String)
 }
-
 DuplicateEntityException --|> RuntimeException
 EntityNotFoundException --|> RuntimeException
 InvalidInputException --|> RuntimeException
@@ -115,16 +119,13 @@ class Driver {
     +getFullName(): String
     +toString(): String
 }
-
 class Car {
     +String id()
     +String manufacturer()
     +String model()
     +String licensePlate()
-    +getDisplayName(): String
     +toString(): String
 }
-
 class Trip {
     +String driverId()
     +String carId()
@@ -135,15 +136,13 @@ class Trip {
     +getDistance(): long
     +getDuration(): Duration
     +includesTime(LocalDateTime): boolean
-    +isOnDate(LocalDate): boolean
+    +overlapsWithDate(LocalDate): boolean
     +toString(): String
 }
-
 class LicenseClass {
     <<enum>>
     +fromString(String): LicenseClass
 }
-
 Driver --> LicenseClass
 Trip --> Driver : driverId
 Trip --> Car : carId
@@ -159,14 +158,23 @@ class ImportService {
     -addCar(String[], String): void
     -addTrip(String[], String): void
 }
+ImportService --> Driver
+ImportService --> Car
+ImportService --> Trip
 
 class RadarTrapService {
     +findDriverAtTime(String): void
 }
+RadarTrapService --> Trip
+RadarTrapService --> Car
+RadarTrapService --> Driver
 
 class LostAndFoundService {
     +findOtherDrivers(String): void
 }
+LostAndFoundService --> Trip
+LostAndFoundService --> Car
+LostAndFoundService --> Driver
 
 class CommandHandler {
     +handle(String): void
@@ -174,23 +182,9 @@ class CommandHandler {
     -handleFahrzeugsuche(String): void
     -printHelp(): void
 }
-
-Main --> ImportService
-Main --> RadarTrapService
-Main --> LostAndFoundService
-Main --> CommandHandler
-ImportService --> Driver
-ImportService --> Car
-ImportService --> Trip
 CommandHandler --> RadarTrapService
 CommandHandler --> LostAndFoundService
-
-RadarTrapService --> Trip
-RadarTrapService --> Car
-RadarTrapService --> Driver
-LostAndFoundService --> Trip
-LostAndFoundService --> Car
-LostAndFoundService --> Driver
+CommandHandler --> ArgParserUtils
 
 %% === Utilities ===
 class ArgParserUtils {
@@ -205,12 +199,48 @@ class EntityFinder {
     +findCarById(List<Car>, String): Car
     +findCarByLicensePlate(List<Car>, String): Car
 }
-
-CommandHandler --> ArgParserUtils
 RadarTrapService --> DateParser
 RadarTrapService --> EntityFinder
 LostAndFoundService --> DateParser
 LostAndFoundService --> EntityFinder
+
+%% === Tests ===
+class CommandHandlerFahrersucheTest {
+    +testFahrersucheFindetTreffer(): void
+}
+class CommandHandlerFahrzeugsucheTest {
+    +testFahrzeugsucheFindetTreffer(): void
+}
+class ImportServiceTest {
+    +testSuccessfulImport(): void
+    +testDuplicateDriverSkipped(): void
+    +testInvalidDateSkipped(): void
+    +testUnknownDriverInTripSkipped(): void
+    +testEndBeforeStartSkipped(): void
+}
+class LostAndFoundServiceTest {
+    +setUp(): void
+    +testFindOtherDriversOnSameDay(): void
+    +testInvalidFormatThrows(): void
+    +testNoMatchFound(): void
+}
+class RadarTrapServiceTest {
+    +setUp(): void
+    +testFindDriverAtTime(): void
+    +testFindDriverAtTimeNoMatch(): void
+    +testInvalidFormatThrows(): void
+}
+class ProjektTester {
+    +main(String[]): void
+    -passedTestNetzwerk(String, String): boolean
+}
+
+CommandHandlerFahrersucheTest --> CommandHandler
+CommandHandlerFahrzeugsucheTest --> CommandHandler
+ImportServiceTest --> ImportService
+LostAndFoundServiceTest --> LostAndFoundService
+RadarTrapServiceTest --> RadarTrapService
+ProjektTester --> Main
 ```
 
 ---
