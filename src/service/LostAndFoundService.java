@@ -57,18 +57,18 @@ public class LostAndFoundService {
                 Driver otherDriver = EntityFinder.findDriverById(drivers, trip.driverId());
                 Car car = EntityFinder.findCarById(cars, carId);
 
-                otherDriverEntries.add("%s (ID: %s, %s)"
-                        .formatted(otherDriver.getFullName(), otherDriver.id(), car.licensePlate()));
+                otherDriverEntries.add("%s (IDs: %s, %s)"
+                        .formatted(otherDriver.getFullName(), otherDriver.id(), car.id()));
             }
         }
 
         // Output result
         System.out.println("\nFahrer hat etwas im Fahrzeug liegen lassen!");
         System.out.println("Tag: " + date);
-        System.out.printf("Ursprünglicher Fahrer: %s (ID: %s)%n", originalDriver.getFullName(), driverId);
+        System.out.println("Ursprünglicher Fahrer: " + originalDriver);
         System.out.print("Fahrzeuge an diesem Tag: ");
         System.out.println(carIds.stream()
-                .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::licensePlate).orElse("Unbekannt"))
+                .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::toString).orElse("Unbekannt"))
                 .collect(Collectors.joining(", ")));
 
         if (otherDriverEntries.isEmpty()) {

@@ -34,7 +34,7 @@ public record Trip(
 
     @Override
     public String toString() {
-        return "Fahrer %s mit Fahrzeug %s von %dkm bis %dkm, Start: %s, Ende: %s, Strecke: %dkm"
-                .formatted(driverId, carId, startKm, endKm, startTime, endTime, getDistance());
+        return "Fahrer %s mit Fahrzeug %s von %dkm bis %dkm (%dkm), Start: %s, Ende: %s (%s)"
+                .formatted(driverId, carId, startKm, endKm, getDistance(), startTime, endTime, getDuration());
     }
 }
