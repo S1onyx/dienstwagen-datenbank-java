@@ -13,7 +13,7 @@ public class DateParserUtils {
         try {
             return LocalDateTime.parse(input);
         } catch (DateTimeParseException e) {
-            throw new InvalidInputException("Datum muss im Format yyyy-MM-ddTHH:mm:ss angegeben sein.");
+            throw new InvalidInputException("Datum muss im Format yyyy-MM-ddTHH:mm:ss angegeben sein." + input);
         }
     }
 
