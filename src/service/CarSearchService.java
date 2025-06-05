@@ -14,8 +14,15 @@ public class CarSearchService {
     public void searchByKeyword(String keyword) {
         String search = keyword.toLowerCase();
         System.out.println("\nSuchergebnisse für Fahrzeuge mit Schlüsselwort '" + keyword + "':");
-        cars.stream()
+
+        List<Car> matches = cars.stream()
                 .filter(c -> (c.manufacturer() + c.model() + c.licensePlate()).toLowerCase().contains(search))
-                .forEach(System.out::println);
+                .toList();
+
+        if (matches.isEmpty()) {
+            System.out.println("Keine passenden Fahrzeuge gefunden.");
+        } else {
+            matches.forEach(System.out::println);
+        }
     }
 }

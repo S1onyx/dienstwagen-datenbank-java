@@ -14,8 +14,15 @@ public class DriverSearchService {
     public void searchByName(String keyword) {
         String search = keyword.toLowerCase();
         System.out.println("\nSuchergebnisse für Fahrer mit Schlüsselwort '" + keyword + "':");
-        drivers.stream()
+
+        List<Driver> matches = drivers.stream()
                 .filter(d -> (d.firstName() + " " + d.lastName()).toLowerCase().contains(search))
-                .forEach(System.out::println);
+                .toList();
+
+        if (matches.isEmpty()) {
+            System.out.println("Keine passenden Fahrer gefunden.");
+        } else {
+            matches.forEach(System.out::println);
+        }
     }
 }

@@ -1,69 +1,57 @@
 package test.service;
 
-import model.Car;
-import model.Driver;
-import model.Trip;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ImportService;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class ImportServiceTest {
+public class ImportServiceTest {
 
-    @Test
-    void testSuccessfulImport() {
-        ImportService service = new ImportService();
-        service.loadData("src/test/resources/test-import-valid.db");
+    private ImportService importService;
 
-        // Check that all expected entries were imported
-        List<Driver> drivers = service.getDrivers();
-        List<Car> cars = service.getCars();
-        List<Trip> trips = service.getTrips();
-
-        assertEquals(2, drivers.size());
-        assertEquals(2, cars.size());
-        assertEquals(2, trips.size());
+    @BeforeEach
+    public void setUp() {
+        importService = new ImportService();
     }
 
     @Test
-    void testDuplicateDriverSkipped() {
-        ImportService service = new ImportService();
-        service.loadData("src/test/resources/test-import-invalid.db");
-
-        // Only one of the duplicate drivers should remain
-        List<Driver> drivers = service.getDrivers();
-        assertEquals(1, drivers.size());
+    public void testSuccessfulImport() {
+        importService.loadData("src/test/resources/test-import-valid.db");
+        assertEquals(2, importService.getDrivers().size());
+        assertEquals(2, importService.getCars().size());
+        assertEquals(2, importService.getTrips().size());
     }
 
     @Test
-    void testInvalidDateSkipped() {
-        ImportService service = new ImportService();
-        service.loadData("src/test/resources/test-import-invalid.db");
-
-        // One trip is valid, the other has invalid date
-        List<Trip> trips = service.getTrips();
-        assertEquals(1, trips.size());
+    public void testDuplicateDriverSkipped() {
+        importService.loadData("src/test/resources/test-import-invalid.db");
+        assertEquals(1, importService.getDrivers().size());
     }
 
     @Test
-    void testUnknownDriverInTripSkipped() {
-        ImportService service = new ImportService();
-        service.loadData("src/test/resources/test-import-invalid.db");
-
-        // Trip with unknown driver should be ignored
-        List<Trip> trips = service.getTrips();
-        assertTrue(trips.stream().noneMatch(t -> t.driverId().equals("UNKNOWN")));
+    public void testInvalidDateSkipped() {
+        importService.loadData("src/test/resources/test-import-invalid.db");
+        assertEquals(1, importService.getTrips().size());
     }
 
     @Test
-    void testEndBeforeStartSkipped() {
-        ImportService service = new ImportService();
-        service.loadData("src/test/resources/test-import-invalid.db");
+    public void testUnknownDriverInTripSkipped() {
+        importService.loadData("src/test/resources/test-import-invalid.db");
+        assertTrue(importService.getTrips().stream().noneMatch(t -> t.driverId().equals("UNKNOWN")));
+    }
 
-        // Trips with invalid time range should not be imported
-        List<Trip> trips = service.getTrips();
-        assertTrue(trips.stream().noneMatch(t -> t.startTime().isAfter(t.endTime())));
+    @Test
+    public void testEndBeforeStartSkipped() {
+        importService.loadData("src/test/resources/test-import-invalid.db");
+        assertTrue(importService.getTrips().stream().noneMatch(t -> t.startTime().isAfter(t.endTime())));
+    }
+
+    @Test
+    public void testEmptyFileDoesNotCrash() {
+        importService.loadData("src/test/resources/test-import-empty.db");
+        assertTrue(importService.getDrivers().isEmpty());
+        assertTrue(importService.getCars().isEmpty());
+        assertTrue(importService.getTrips().isEmpty());
     }
 }

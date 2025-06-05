@@ -8,18 +8,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.LostAndFoundService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LostAndFoundServiceTest {
+public class LostAndFoundServiceTest {
 
-    private LostAndFoundService service;
+    private LostAndFoundService lostAndFoundService;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @BeforeEach
-    void setUp() {
-        // Prepare 2 drivers, same car, different trips on same day
+    public void setUp() {
         Driver d1 = new Driver("F001", "Anna", "Muster", LicenseClass.B);
         Driver d2 = new Driver("F002", "Max", "Beispiel", LicenseClass.B);
         Car car = new Car("C001", "VW", "Golf", "S-AB-1234");
@@ -29,27 +31,26 @@ class LostAndFoundServiceTest {
         Trip t2 = new Trip("F002", "C001", 10100, 10200,
                 LocalDateTime.parse("2024-08-13T09:30:00"), LocalDateTime.parse("2024-08-13T10:00:00"));
 
-        service = new LostAndFoundService(List.of(d1, d2), List.of(car), List.of(t1, t2));
+        lostAndFoundService = new LostAndFoundService(List.of(d1, d2), List.of(car), List.of(t1, t2));
+        System.setOut(new PrintStream(output));
     }
 
     @Test
-    void testFindOtherDriversOnSameDay() {
-        // Valid input: other driver should be found
-        String input = "F001;2024-08-13";
-        assertDoesNotThrow(() -> service.findOtherDrivers(input));
+    public void testFindOtherDriversOnSameDay() {
+        lostAndFoundService.findOtherDrivers("F001;2024-08-13");
+        String result = output.toString();
+        assertTrue(result.contains("Andere Fahrer dieser Fahrzeuge:"));
+        assertTrue(result.contains("Max Beispiel"));
     }
 
     @Test
-    void testInvalidFormatThrows() {
-        // Missing semicolon → should throw
-        String input = "F001-2024-08-13";
-        assertThrows(RuntimeException.class, () -> service.findOtherDrivers(input));
+    public void testInvalidFormatThrows() {
+        assertThrows(RuntimeException.class, () -> lostAndFoundService.findOtherDrivers("F001-2024-08-13"));
     }
 
     @Test
-    void testNoMatchFound() {
-        // No trips on this date → no output, but no crash
-        String input = "F001;2024-08-15";
-        assertDoesNotThrow(() -> service.findOtherDrivers(input));
+    public void testNoMatchFound() {
+        lostAndFoundService.findOtherDrivers("F001;2024-08-15");
+        assertTrue(output.toString().contains("Keine Fahrten für Fahrer"));
     }
 }

@@ -2,6 +2,7 @@ package test.service;
 
 import model.Driver;
 import model.LicenseClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.DriverSearchService;
 
@@ -9,22 +10,44 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-class DriverSearchServiceTest {
+public class DriverSearchServiceTest {
+
+    private DriverSearchService driverSearchService;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    @BeforeEach
+    public void setUp() {
+        Driver d1 = new Driver("F001", "Anna", "Musterfrau", LicenseClass.B);
+        Driver d2 = new Driver("F002", "Max", "Beispiel", LicenseClass.C);
+        Driver d3 = new Driver("F003", "Anna", "Beispiel", LicenseClass.A);
+        driverSearchService = new DriverSearchService(List.of(d1, d2, d3));
+        System.setOut(new PrintStream(output));
+    }
 
     @Test
-    void testSearchByNameFindsMatch() {
-        Driver d1 = new Driver("F001", "Anna", "Musterfrau", LicenseClass.B);
-        Driver d2 = new Driver("F002", "Max", "Beispiel", LicenseClass.B);
-        DriverSearchService service = new DriverSearchService(List.of(d1, d2));
+    public void testSearchByNameFindsSingleMatch() {
+        driverSearchService.searchByName("muster");
+        assertTrue(output.toString().toLowerCase().contains("anna musterfrau"));
+    }
 
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(output));
-
-        service.searchByName("anna");
-
+    @Test
+    public void testSearchByNameFindsMultipleMatches() {
+        driverSearchService.searchByName("anna");
         String result = output.toString().toLowerCase();
-        assertTrue(result.contains("anna musterfrau"));
+        assertTrue(result.contains("anna musterfrau") && result.contains("anna beispiel"));
+    }
+
+    @Test
+    public void testSearchByNameNoMatch() {
+        driverSearchService.searchByName("unbekannt");
+        assertTrue(output.toString().toLowerCase().contains("keine passenden fahrer gefunden"));
+    }
+
+    @Test
+    public void testSearchByNameCaseInsensitive() {
+        driverSearchService.searchByName("MaX");
+        assertTrue(output.toString().toLowerCase().contains("max beispiel"));
     }
 }

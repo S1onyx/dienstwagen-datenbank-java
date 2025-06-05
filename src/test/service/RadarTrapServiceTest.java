@@ -7,51 +7,45 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.RadarTrapService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RadarTrapServiceTest {
+public class RadarTrapServiceTest {
 
-    private RadarTrapService radarService;
+    private RadarTrapService radarTrapService;
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @BeforeEach
-    void setUp() {
-        // One driver, one trip, one car
+    public void setUp() {
         Driver driver = new Driver("F001", "Anna", "Muster", model.LicenseClass.B);
         Car car = new Car("C001", "BMW", "320i", "S-XX-1234");
 
-        Trip trip = new Trip(
-                "F001",
-                "C001",
-                10000,
-                10200,
+        Trip trip = new Trip("F001", "C001", 10000, 10200,
                 LocalDateTime.parse("2024-01-01T10:00:00"),
-                LocalDateTime.parse("2024-01-01T11:00:00")
-        );
+                LocalDateTime.parse("2024-01-01T11:00:00"));
 
-        radarService = new RadarTrapService(List.of(driver), List.of(car), List.of(trip));
+        radarTrapService = new RadarTrapService(List.of(driver), List.of(car), List.of(trip));
+        System.setOut(new PrintStream(output));
     }
 
     @Test
-    void testFindDriverAtTime() {
-        // Time within trip → should succeed
-        String input = "S-XX-1234;2024-01-01T10:30:00";
-        assertDoesNotThrow(() -> radarService.findDriverAtTime(input));
+    public void testFindDriverAtTimeSuccess() {
+        radarTrapService.findDriverAtTime("S-XX-1234;2024-01-01T10:30:00");
+        assertTrue(output.toString().contains("Fahrer:"));
     }
 
     @Test
-    void testFindDriverAtTimeNoMatch() {
-        // Time outside trip → no result, no error
-        String input = "S-XX-1234;2024-01-01T12:00:00";
-        assertDoesNotThrow(() -> radarService.findDriverAtTime(input));
+    public void testFindDriverAtTimeNoMatch() {
+        radarTrapService.findDriverAtTime("S-XX-1234;2024-01-01T12:00:00");
+        assertTrue(output.toString().contains("Kein Fahrer gefunden."));
     }
 
     @Test
-    void testInvalidFormatThrows() {
-        // Missing semicolon → should throw
-        String input = "S-XX-1234 2024-01-01T10:00:00";
-        assertThrows(IllegalArgumentException.class, () -> radarService.findDriverAtTime(input));
+    public void testInvalidFormatThrows() {
+        assertThrows(IllegalArgumentException.class, () -> radarTrapService.findDriverAtTime("S-XX-1234 2024-01-01T10:00:00"));
     }
 }

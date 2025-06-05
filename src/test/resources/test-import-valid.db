@@ -1,11 +1,11 @@
-New_Entity: fahrerId,vorname,nachname,fuehrerscheinklasse
-F001,Anna,Muster,B
-F002,Max,Beispiel,B
+New_Entity: fahrerId, vorname, nachname, klasse
+F001, Anna, Musterfrau, B
+F002, Max, Beispiel, C
 
-New_Entity: fahrzeugId,hersteller,modell,kennzeichen
-C001,BMW,320i,S-XX-1234
-C002,Audi,A4,S-AA-9876
+New_Entity: fahrzeugId, hersteller, modell, kennzeichen
+C001, BMW, 320i, S-XX-1234
+C002, Audi, A4, S-AA-9876
 
-New_Entity: fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
-F001,C001,10000,10100,2024-01-01T10:00:00,2024-01-01T11:00:00
-F002,C002,20000,20100,2024-01-02T12:00:00,2024-01-02T13:00:00
+New_Entity: fahrerId, fahrzeugId, startKM, endKM, startzeit, endzeit
+F001, C001, 10000, 10100, 2024-01-01T08:00:00, 2024-01-01T09:00:00
+F002, C002, 20000, 20100, 2024-01-01T10:00:00, 2024-01-01T11:00:00
