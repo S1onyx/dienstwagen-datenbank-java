@@ -8,8 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.LostAndFoundService;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LostAndFoundServiceTest {
 
     private LostAndFoundService lostAndFoundService;
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @BeforeEach
     public void setUp() {
@@ -32,13 +29,11 @@ public class LostAndFoundServiceTest {
                 LocalDateTime.parse("2024-08-13T09:30:00"), LocalDateTime.parse("2024-08-13T10:00:00"));
 
         lostAndFoundService = new LostAndFoundService(List.of(d1, d2), List.of(car), List.of(t1, t2));
-        System.setOut(new PrintStream(output));
     }
 
     @Test
     public void testFindOtherDriversOnSameDay() {
-        lostAndFoundService.findOtherDrivers("F001;2024-08-13");
-        String result = output.toString();
+        String result = lostAndFoundService.findOtherDrivers("F001;2024-08-13");
         assertTrue(result.contains("Andere Fahrer dieser Fahrzeuge:"));
         assertTrue(result.contains("Max Beispiel"));
     }
@@ -50,7 +45,7 @@ public class LostAndFoundServiceTest {
 
     @Test
     public void testNoMatchFound() {
-        lostAndFoundService.findOtherDrivers("F001;2024-08-15");
-        assertTrue(output.toString().contains("Keine Fahrten für Fahrer"));
+        String result = lostAndFoundService.findOtherDrivers("F001;2024-08-15");
+        assertTrue(result.contains("Keine Fahrten für Fahrer"));
     }
 }

@@ -22,7 +22,9 @@ public class RadarTrapService {
     }
 
     // Find the driver of a car at a specific timestamp
-    public void findDriverAtTime(String input) {
+    public String findDriverAtTime(String input) {
+        StringBuilder result = new StringBuilder();
+
         if (!input.contains(";"))
             throw new IllegalArgumentException("Ungültiges Format. Erwartet: S-XX-1234;2024-02-14T13:57:43");
 
@@ -38,17 +40,19 @@ public class RadarTrapService {
                 .toList();
 
         if (matchingTrips.isEmpty()) {
-            System.out.println("Kein Fahrer gefunden.");
-            return;
+            return "Kein Fahrer gefunden.\n";
         }
 
         // Print all matches
         for (Trip trip : matchingTrips) {
             Driver driver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
-            System.out.println("\nGeblitzt während folgender Fahrt:");
-            System.out.println("Fahrzeug: " + car);
-            System.out.println("Fahrt: " + trip);
-            System.out.println("Fahrer: " + driver);
+            // result.append("\nGeblitzt während folgender Fahrt:\n");
+            // result.append("Fahrzeug: ").append(car).append("\n");
+            // result.append("Fahrt: ").append(trip).append("\n");
+            // result.append("Fahrer: ").append(driver).append("\n");
+            result.append("Fahrer: ").append(driver.getFullName()).append("\n");
         }
+
+        return result.toString();
     }
 }

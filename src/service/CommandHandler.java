@@ -23,14 +23,14 @@ public class CommandHandler {
     public void handle(String arg) {
         if (arg.startsWith("--fahrersuche=")) {
             String keyword = ArgParserUtils.extractValue(arg);
-            driverSearchService.searchByName(keyword);
+            System.out.println(driverSearchService.searchByName(keyword));
         } else if (arg.startsWith("--fahrzeugsuche=")) {
             String keyword = ArgParserUtils.extractValue(arg);
-            carSearchService.searchByKeyword(keyword);
+            System.out.println(carSearchService.searchByKeyword(keyword));
         } else if (arg.startsWith("--fahrerZeitpunkt=")) {
-            radarTrapService.findDriverAtTime(ArgParserUtils.extractValue(arg));
+            System.out.println(radarTrapService.findDriverAtTime(ArgParserUtils.extractValue(arg)));
         } else if (arg.startsWith("--fahrerDatum=")) {
-            lostAndFoundService.findOtherDrivers(ArgParserUtils.extractValue(arg));
+            System.out.println(lostAndFoundService.findOtherDrivers(ArgParserUtils.extractValue(arg)));
         } else if (arg.equals("--help") || arg.isEmpty()) {
             printHelp();
         } else {

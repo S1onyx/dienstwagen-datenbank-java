@@ -3,6 +3,7 @@ package service;
 import model.Driver;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DriverSearchService {
     private final List<Driver> drivers;
@@ -11,18 +12,21 @@ public class DriverSearchService {
         this.drivers = drivers;
     }
 
-    public void searchByName(String keyword) {
+    public String searchByName(String keyword) {
+        StringBuilder result = new StringBuilder();
         String search = keyword.toLowerCase();
-        System.out.println("\nSuchergebnisse für Fahrer mit Schlüsselwort '" + keyword + "':");
+        result.append("\nSuchergebnisse für Fahrer mit Schlüsselwort '").append(keyword).append("':\n");
 
         List<Driver> matches = drivers.stream()
                 .filter(d -> (d.firstName() + " " + d.lastName()).toLowerCase().contains(search))
                 .toList();
 
         if (matches.isEmpty()) {
-            System.out.println("Keine passenden Fahrer gefunden.");
+            result.append("Keine passenden Fahrer gefunden.\n");
         } else {
-            matches.forEach(System.out::println);
+            result.append(matches.stream().map(Driver::toString).collect(Collectors.joining("\n"))).append("\n");
         }
+
+        return result.toString();
     }
 }

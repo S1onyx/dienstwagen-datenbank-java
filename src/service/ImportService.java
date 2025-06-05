@@ -19,8 +19,10 @@ public class ImportService {
     private final List<Car> cars = new ArrayList<>();
     private final List<Trip> trips = new ArrayList<>();
 
-    // Load all data from input file
-    public void loadData(String filePath) {
+    // Load all data from input file and return summary
+    public String loadData(String filePath) {
+        StringBuilder result = new StringBuilder();
+
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             String currentEntity = "";
@@ -40,30 +42,28 @@ public class ImportService {
                 for (int i = 0; i < parts.length; i++) parts[i] = parts[i].trim();
 
                 try {
-                    // Delegate to parser based on entity type
                     switch (currentEntity) {
-                        case "DRIVER" -> addDriver(parts, line);
-                        case "CAR" -> addCar(parts, line);
-                        case "TRIP" -> addTrip(parts, line);
+                        case "DRIVER" -> addDriver(parts);
+                        case "CAR" -> addCar(parts);
+                        case "TRIP" -> addTrip(parts);
                     }
                 } catch (Exception e) {
-                    // Skip malformed lines
-                    System.err.println("Zeile übersprungen (Fehler: " + e.getMessage() + "): " + line);
+                    result.append("Zeile übersprungen (Fehler: ").append(e.getMessage()).append("): ").append(line).append("\n");
                 }
             }
 
-            // Summary output
-            System.out.println("Import abgeschlossen:");
-            System.out.printf("• Fahrer:    %d%n", drivers.size());
-            System.out.printf("• Fahrzeuge: %d%n", cars.size());
-            System.out.printf("• Fahrten:   %d%n", trips.size());
+            result.append("Import abgeschlossen:\n");
+            result.append("• Fahrer:    ").append(drivers.size()).append("\n");
+            result.append("• Fahrzeuge: ").append(cars.size()).append("\n");
+            result.append("• Fahrten:   ").append(trips.size()).append("\n");
 
         } catch (Exception e) {
-            System.err.println("Fehler beim Laden der Datei: " + e.getMessage());
+            result.append("Fehler beim Laden der Datei: ").append(e.getMessage()).append("\n");
         }
+
+        return result.toString();
     }
 
-    // Identify entity type by header structure
     private String detectEntityType(String header) {
         if (header.startsWith("fahrerId") && header.contains("startzeit")) return "TRIP";
         if (header.startsWith("fahrerId")) return "DRIVER";
@@ -71,8 +71,7 @@ public class ImportService {
         return "";
     }
 
-    // Parse and add driver entry
-    private void addDriver(String[] parts, String rawLine) {
+    private void addDriver(String[] parts) {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrereintrag");
         String id = parts[0];
         if (drivers.stream().anyMatch(d -> d.id().equals(id)))
@@ -80,8 +79,7 @@ public class ImportService {
         drivers.add(new Driver(id, parts[1], parts[2], LicenseClass.fromString(parts[3])));
     }
 
-    // Parse and add car entry
-    private void addCar(String[] parts, String rawLine) {
+    private void addCar(String[] parts) {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrzeugeintrag");
         String id = parts[0];
         if (cars.stream().anyMatch(c -> c.id().equals(id)))
@@ -89,14 +87,12 @@ public class ImportService {
         cars.add(new Car(id, parts[1], parts[2], parts[3]));
     }
 
-    // Parse and add trip entry
-    private void addTrip(String[] parts, String rawLine) {
+    private void addTrip(String[] parts) {
         if (parts.length < 6) throw new IllegalArgumentException("Unvollständiger Trip");
 
         String driverId = parts[0];
         String carId = parts[1];
 
-        // Validate referenced driver and car
         if (drivers.stream().noneMatch(d -> d.id().equals(driverId)))
             throw new IllegalArgumentException("Unbekannte Fahrer-ID: " + driverId);
         if (cars.stream().noneMatch(c -> c.id().equals(carId)))
@@ -105,11 +101,9 @@ public class ImportService {
         var startTime = parse(parts[4]);
         var endTime = parse(parts[5]);
 
-        // Validate logical time order
         if (endTime.isBefore(startTime))
             throw new IllegalArgumentException("Endzeit liegt vor Startzeit");
 
-        // Add valid trip
         trips.add(new Trip(
                 driverId,
                 carId,
@@ -120,7 +114,6 @@ public class ImportService {
         ));
     }
 
-    // Getters for imported entities
     public List<Driver> getDrivers() {
         return drivers;
     }

@@ -24,7 +24,9 @@ public class LostAndFoundService {
     }
 
     // Find other drivers who used the same vehicle on the same day (even partially)
-    public void findOtherDrivers(String input) {
+    public String findOtherDrivers(String input) {
+        StringBuilder result = new StringBuilder();
+
         if (!input.contains(";"))
             throw new InvalidInputException("Ungültiges Format. Erwartet: F003;2024-08-13");
 
@@ -32,7 +34,7 @@ public class LostAndFoundService {
         String driverId = parts[0].trim();
         LocalDate date = DateParserUtils.parseDate(parts[1].trim());
 
-        Driver originalDriver = EntityFinderUtils.findDriverById(drivers, driverId);
+        // Driver originalDriver = EntityFinderUtils.findDriverById(drivers, driverId);
 
         // Collect all cars used by the driver on that date (overlapping trips)
         Set<String> carIds = trips.stream()
@@ -41,8 +43,7 @@ public class LostAndFoundService {
                 .collect(Collectors.toSet());
 
         if (carIds.isEmpty()) {
-            System.out.printf("Keine Fahrten für Fahrer %s am %s gefunden.%n", driverId, date);
-            return;
+            return "Keine Fahrten für Fahrer %s am %s gefunden.\n".formatted(driverId, date);
         }
 
         Set<String> otherDriverEntries = new TreeSet<>();
@@ -59,25 +60,30 @@ public class LostAndFoundService {
                 Driver otherDriver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
                 Car car = EntityFinderUtils.findCarById(cars, carId);
 
-                otherDriverEntries.add("%s (IDs: %s, %s)"
-                        .formatted(otherDriver.getFullName(), otherDriver.id(), car.id()));
+                // otherDriverEntries.add("%s (IDs: %s, %s)"
+                //        .formatted(otherDriver.getFullName(), otherDriver.id(), car.id()));
+                otherDriverEntries.add("%s (%s)"
+                        .formatted(otherDriver.getFullName(), car.licensePlate()));
             }
         }
 
-        // Output result
-        System.out.println("\nFahrer hat etwas im Fahrzeug liegen lassen!");
-        System.out.println("Tag: " + date);
-        System.out.println("Ursprünglicher Fahrer: " + originalDriver);
-        System.out.print("Fahrzeuge an diesem Tag: ");
-        System.out.println(carIds.stream()
-                .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::toString).orElse("Unbekannt"))
-                .collect(Collectors.joining(", ")));
+        // Build result
+        // result.append("\nFahrer hat etwas im Fahrzeug liegen lassen!\n");
+        // result.append("Tag: ").append(date).append("\n");
+        // result.append("Ursprünglicher Fahrer: ").append(originalDriver).append("\n");
+        // result.append("Fahrzeuge an diesem Tag: ");
+        // result.append(carIds.stream()
+        //        .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::toString).orElse("Unbekannt"))
+        //        .collect(Collectors.joining(", "))).append("\n");
 
         if (otherDriverEntries.isEmpty()) {
-            System.out.println("Keine anderen Fahrer gefunden.");
+            result.append("Keine anderen Fahrer gefunden.\n");
         } else {
-            System.out.println("Andere Fahrer dieser Fahrzeuge:");
-            otherDriverEntries.forEach(entry -> System.out.println("• " + entry));
+        //    result.append("Andere Fahrer dieser Fahrzeuge:\n");
+        //    otherDriverEntries.forEach(entry -> result.append("• ").append(entry).append("\n"));
+              result.append(String.join(", ", otherDriverEntries));
         }
+
+        return result.toString();
     }
 }
