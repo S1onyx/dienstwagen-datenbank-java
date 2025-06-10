@@ -1,7 +1,6 @@
 import exceptions.EntityNotFoundException;
 import exceptions.InvalidInputException;
-import model.Car;
-import model.Driver;
+import model.*;
 import service.*;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public class Main {
             // Extract imported entities
             List<Driver> drivers = importService.getDrivers();
             List<Car> cars = importService.getCars();
-            var trips = importService.getTrips();
+            List<Trip> trips = importService.getTrips();
 
             // Initialize services with data
             RadarTrapService radarTrapService = new RadarTrapService(drivers, cars, trips);
