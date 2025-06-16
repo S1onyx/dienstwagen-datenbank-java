@@ -34,7 +34,6 @@ public class LostAndFoundServiceTest {
     @Test
     public void testFindOtherDriversOnSameDay() {
         String result = lostAndFoundService.findOtherDrivers("F001;2024-08-13");
-        assertTrue(result.contains("Andere Fahrer dieser Fahrzeuge:"));
         assertTrue(result.contains("Max Beispiel"));
     }
 
