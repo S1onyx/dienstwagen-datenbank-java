@@ -10,6 +10,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit-Tests für die Fahrersuche nach Namen.
+ */
 public class DriverSearchServiceTest {
 
     private DriverSearchService driverSearchService;

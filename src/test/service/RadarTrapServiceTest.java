@@ -12,6 +12,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests für die Blitzer-Funktion (Fahrer zum bestimmten Zeitpunkt).
+ */
 public class RadarTrapServiceTest {
 
     private RadarTrapService radarTrapService;

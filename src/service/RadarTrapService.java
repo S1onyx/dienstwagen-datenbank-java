@@ -9,19 +9,35 @@ import utils.EntityFinderUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Service zur Identifikation von Fahrern zu einem bestimmten Zeitpunkt auf Basis von Blitzerfotos o.ä.
+ */
 public class RadarTrapService {
 
     private final List<Driver> drivers;
     private final List<Car> cars;
     private final List<Trip> trips;
 
+    /**
+     * Initialisiert den Service mit allen vorhandenen Daten.
+     *
+     * @param drivers Liste aller Fahrer
+     * @param cars    Liste aller Fahrzeuge
+     * @param trips   Liste aller Fahrten
+     */
     public RadarTrapService(List<Driver> drivers, List<Car> cars, List<Trip> trips) {
         this.drivers = drivers;
         this.cars = cars;
         this.trips = trips;
     }
 
-    // Find the driver of a car at a specific timestamp
+    /**
+     * Findet den Fahrer eines bestimmten Fahrzeugs zu einem gegebenen Zeitpunkt.
+     *
+     * @param input Argument im Format "Kennzeichen;Zeit" (z. B. "S-AB-1234;2024-01-01T10:00:00")
+     * @return Gefundener Fahrername oder Fehlermeldung
+     * @throws IllegalArgumentException bei falschem Format
+     */
     public String findDriverAtTime(String input) {
         StringBuilder result = new StringBuilder();
 
@@ -34,7 +50,7 @@ public class RadarTrapService {
 
         Car car = EntityFinderUtils.findCarByLicensePlate(cars, licensePlate);
 
-        // Find trips matching the car and timestamp
+        // Finde alle Fahrten mit diesem Fahrzeug zur gegebenen Zeit
         List<Trip> matchingTrips = trips.stream()
                 .filter(t -> t.carId().equals(car.id()) && t.includesTime(timestamp))
                 .toList();
@@ -43,13 +59,8 @@ public class RadarTrapService {
             return "Kein Fahrer gefunden.\n";
         }
 
-        // Print all matches
         for (Trip trip : matchingTrips) {
             Driver driver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
-            // result.append("\nGeblitzt während folgender Fahrt:\n");
-            // result.append("Fahrzeug: ").append(car).append("\n");
-            // result.append("Fahrt: ").append(trip).append("\n");
-            // result.append("Fahrer: ").append(driver).append("\n");
             result.append("Fahrer: ").append(driver.getFullName()).append("\n");
         }
 

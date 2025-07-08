@@ -1,9 +1,18 @@
 package model;
 
+/**
+ * Aufzählung aller unterstützten Führerscheinklassen.
+ */
 public enum LicenseClass {
     A, B, C, D, BE, CE, DE, AM, A1, A2;
 
-    // Converts string to enum, case-insensitive
+    /**
+     * Wandelt eine Zeichenkette in eine gültige Lizenzklasse um.
+     *
+     * @param value Eingabestring (z. B. "b", "BE")
+     * @return Passende Lizenzklasse
+     * @throws IllegalArgumentException falls die Klasse unbekannt ist
+     */
     public static LicenseClass fromString(String value) {
         try {
             return LicenseClass.valueOf(value.toUpperCase());

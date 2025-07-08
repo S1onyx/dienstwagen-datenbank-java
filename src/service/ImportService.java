@@ -13,13 +13,21 @@ import java.util.List;
 
 import static java.time.LocalDateTime.parse;
 
+/**
+ * Serviceklasse zum Importieren von Fahrern, Fahrzeugen und Fahrten aus einer Datendatei.
+ */
 public class ImportService {
 
     private final List<Driver> drivers = new ArrayList<>();
     private final List<Car> cars = new ArrayList<>();
     private final List<Trip> trips = new ArrayList<>();
 
-    // Load all data from input file and return summary
+    /**
+     * Lädt alle Daten aus der angegebenen Datei und speichert sie intern.
+     *
+     * @param filePath Pfad zur Datenbankdatei
+     * @return Zusammenfassung des Imports als Text
+     */
     public String loadData(String filePath) {
         StringBuilder result = new StringBuilder();
 
@@ -31,7 +39,7 @@ public class ImportService {
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
-                // Check for entity type declaration
+                // Abschnittserkennung (z. B. New_Entity: fahrerId,...)
                 if (line.startsWith("New_Entity:")) {
                     String header = line.substring("New_Entity:".length()).trim();
                     currentEntity = detectEntityType(header);
@@ -64,6 +72,12 @@ public class ImportService {
         return result.toString();
     }
 
+    /**
+     * Erkennt den Entitätstyp anhand der Headerzeile.
+     *
+     * @param header erste Zeile nach "New_Entity:"
+     * @return "DRIVER", "CAR" oder "TRIP"
+     */
     private String detectEntityType(String header) {
         if (header.startsWith("fahrerId") && header.contains("startzeit")) return "TRIP";
         if (header.startsWith("fahrerId")) return "DRIVER";
@@ -71,6 +85,11 @@ public class ImportService {
         return "";
     }
 
+    /**
+     * Fügt einen Fahrer hinzu, sofern noch nicht vorhanden.
+     *
+     * @param parts Zeile als Array [id, vorname, nachname, klasse]
+     */
     private void addDriver(String[] parts) {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrereintrag");
         String id = parts[0];
@@ -79,6 +98,11 @@ public class ImportService {
         drivers.add(new Driver(id, parts[1], parts[2], LicenseClass.fromString(parts[3])));
     }
 
+    /**
+     * Fügt ein Fahrzeug hinzu, sofern noch nicht vorhanden.
+     *
+     * @param parts Zeile als Array [id, hersteller, modell, kennzeichen]
+     */
     private void addCar(String[] parts) {
         if (parts.length < 4) throw new IllegalArgumentException("Unvollständiger Fahrzeugeintrag");
         String id = parts[0];
@@ -87,6 +111,11 @@ public class ImportService {
         cars.add(new Car(id, parts[1], parts[2], parts[3]));
     }
 
+    /**
+     * Fügt eine Fahrt hinzu, sofern alle IDs gültig sind und Zeiten korrekt sind.
+     *
+     * @param parts Zeile als Array [fahrerId, fahrzeugId, startKm, endKm, startzeit, endzeit]
+     */
     private void addTrip(String[] parts) {
         if (parts.length < 6) throw new IllegalArgumentException("Unvollständiger Trip");
 
@@ -114,14 +143,23 @@ public class ImportService {
         ));
     }
 
+    /**
+     * @return Liste aller importierten Fahrer
+     */
     public List<Driver> getDrivers() {
         return drivers;
     }
 
+    /**
+     * @return Liste aller importierten Fahrzeuge
+     */
     public List<Car> getCars() {
         return cars;
     }
 
+    /**
+     * @return Liste aller importierten Fahrten
+     */
     public List<Trip> getTrips() {
         return trips;
     }

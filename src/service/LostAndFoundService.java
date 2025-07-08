@@ -11,19 +11,35 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service zum Auffinden von Fahrern, die dasselbe Fahrzeug am selben Tag verwendet haben.
+ */
 public class LostAndFoundService {
 
     private final List<Driver> drivers;
     private final List<Car> cars;
     private final List<Trip> trips;
 
+    /**
+     * Erstellt den Service mit bekannten Fahrern, Fahrzeugen und Fahrten.
+     *
+     * @param drivers Liste aller Fahrer
+     * @param cars    Liste aller Fahrzeuge
+     * @param trips   Liste aller Fahrten
+     */
     public LostAndFoundService(List<Driver> drivers, List<Car> cars, List<Trip> trips) {
         this.drivers = drivers;
         this.cars = cars;
         this.trips = trips;
     }
 
-    // Find other drivers who used the same vehicle on the same day (even partially)
+    /**
+     * Findet andere Fahrer, die am selben Tag dasselbe Fahrzeug genutzt haben.
+     *
+     * @param input Eingabe im Format "FahrerID;Datum" (z. B. "F003;2024-08-13")
+     * @return String mit gefundener Fahrer-Liste oder Hinweis auf keine Übereinstimmungen
+     * @throws InvalidInputException bei falschem Eingabeformat
+     */
     public String findOtherDrivers(String input) {
         StringBuilder result = new StringBuilder();
 
@@ -34,9 +50,7 @@ public class LostAndFoundService {
         String driverId = parts[0].trim();
         LocalDate date = DateParserUtils.parseDate(parts[1].trim());
 
-        // Driver originalDriver = EntityFinderUtils.findDriverById(drivers, driverId);
-
-        // Collect all cars used by the driver on that date (overlapping trips)
+        // Alle Fahrzeuge, die der Fahrer an diesem Tag genutzt hat
         Set<String> carIds = trips.stream()
                 .filter(t -> t.driverId().equals(driverId) && t.overlapsWithDate(date))
                 .map(Trip::carId)
@@ -48,7 +62,7 @@ public class LostAndFoundService {
 
         Set<String> otherDriverEntries = new TreeSet<>();
 
-        // Check other drivers using the same cars on the same day
+        // Finde weitere Fahrer derselben Fahrzeuge am selben Tag
         for (String carId : carIds) {
             List<Trip> sameDayTrips = trips.stream()
                     .filter(t -> t.carId().equals(carId)
@@ -60,28 +74,16 @@ public class LostAndFoundService {
                 Driver otherDriver = EntityFinderUtils.findDriverById(drivers, trip.driverId());
                 Car car = EntityFinderUtils.findCarById(cars, carId);
 
-                // otherDriverEntries.add("%s (IDs: %s, %s)"
-                //        .formatted(otherDriver.getFullName(), otherDriver.id(), car.id()));
+                // Ausgabe enthält Fahrername + Kennzeichen
                 otherDriverEntries.add("%s (%s)"
                         .formatted(otherDriver.getFullName(), car.licensePlate()));
             }
         }
 
-        // Build result
-        // result.append("\nFahrer hat etwas im Fahrzeug liegen lassen!\n");
-        // result.append("Tag: ").append(date).append("\n");
-        // result.append("Ursprünglicher Fahrer: ").append(originalDriver).append("\n");
-        // result.append("Fahrzeuge an diesem Tag: ");
-        // result.append(carIds.stream()
-        //        .map(id -> cars.stream().filter(c -> c.id().equals(id)).findFirst().map(Car::toString).orElse("Unbekannt"))
-        //        .collect(Collectors.joining(", "))).append("\n");
-
         if (otherDriverEntries.isEmpty()) {
             result.append("Keine anderen Fahrer gefunden.\n");
         } else {
-        //    result.append("Andere Fahrer dieser Fahrzeuge:\n");
-        //    otherDriverEntries.forEach(entry -> result.append("• ").append(entry).append("\n"));
-              result.append(String.join(", ", otherDriverEntries));
+            result.append(String.join(", ", otherDriverEntries));
         }
 
         return result.toString();

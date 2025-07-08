@@ -6,6 +6,10 @@ import service.ImportService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integrationstests für den ImportService.
+ * Nutzt vorbereitete Testdateien unter /test/resources/.
+ */
 public class ImportServiceTest {
 
     private ImportService importService;

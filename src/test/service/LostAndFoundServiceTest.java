@@ -13,6 +13,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests für die "Lost & Found"-Funktion (Fahrer am selben Tag im selben Fahrzeug).
+ */
 public class LostAndFoundServiceTest {
 
     private LostAndFoundService lostAndFoundService;

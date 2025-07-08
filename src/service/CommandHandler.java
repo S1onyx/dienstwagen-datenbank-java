@@ -2,12 +2,19 @@ package service;
 
 import utils.ArgParserUtils;
 
+/**
+ * Zentrale Klasse zur Verarbeitung von Kommandozeilenargumenten.
+ * Leitet Aufrufe an spezialisierte Services weiter.
+ */
 public class CommandHandler {
     private final RadarTrapService radarTrapService;
     private final LostAndFoundService lostAndFoundService;
     private final DriverSearchService driverSearchService;
     private final CarSearchService carSearchService;
 
+    /**
+     * Erstellt den CommandHandler mit allen benötigten Services.
+     */
     public CommandHandler(
             RadarTrapService radarTrapService,
             LostAndFoundService lostAndFoundService,
@@ -20,6 +27,11 @@ public class CommandHandler {
         this.carSearchService = carSearchService;
     }
 
+    /**
+     * Verarbeitet ein Argument und ruft die entsprechende Aktion auf.
+     *
+     * @param arg Argument im Format --option=wert
+     */
     public void handle(String arg) {
         if (arg.startsWith("--fahrersuche=")) {
             String keyword = ArgParserUtils.extractValue(arg);
@@ -38,6 +50,9 @@ public class CommandHandler {
         }
     }
 
+    /**
+     * Gibt eine Liste der verfügbaren Kommandozeilenoptionen aus.
+     */
     private static void printHelp() {
         System.out.println("Verfügbare Optionen:");
         System.out.println("--fahrersuche=<Suchbegriff>        : Suche nach Fahrern mit dem angegebenen Suchbegriff.");
